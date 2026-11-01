@@ -2,16 +2,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "Wedge",
+    name: "Wedgie",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "Wedge",
-            path: "Sources/Wedge"
+            name: "Wedgie",
+            path: "Sources/Wedgie"
         ),
         .executableTarget(
-            name: "WedgeIcon",
-            path: "Sources/WedgeIcon"
+            name: "WedgieIcon",
+            path: "Sources/WedgieIcon"
         )
     ],
     swiftLanguageModes: [.v6]

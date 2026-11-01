@@ -6,8 +6,8 @@ enum PasswordPrompt {
     @MainActor
     static func ask(reason: String) -> String? {
         let alert = NSAlert()
-        alert.messageText = L10n.tr("Leash needs your admin password")
-        alert.informativeText = "\(reason)\n\n\(L10n.tr("The password is stored in your Keychain and only used to toggle macOS sleep behavior. You can revoke access any time by quitting Leash."))"
+        alert.messageText = L10n.tr("Wedgie needs your admin password")
+        alert.informativeText = "\(reason)\n\n\(L10n.tr("The password is stored in your Keychain and only used to toggle macOS sleep behavior. You can revoke access any time by quitting Wedgie."))"
         alert.alertStyle = .informational
         alert.addButton(withTitle: L10n.tr("Allow"))
         alert.addButton(withTitle: L10n.tr("Cancel"))

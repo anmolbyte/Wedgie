@@ -3,14 +3,6 @@ import IOKit
 
 /// Subscribes to lid open/closed transitions via IOKit's IOPMrootDomain.
 /// Reports state as a Bool: true = lid open, false = lid closed.
-///
-/// `AppleClamshellState` historically returns a Bool whose semantics differ
-/// across machines and macOS versions (true sometimes means open, sometimes
-/// closed). To stay robust without testing on every model, we *calibrate* at
-/// instantiation: whatever raw value is read while the monitor is being
-/// created is the user's "lid open" reference, since the user has just
-/// interacted with the menubar to enable the feature. All later raw values
-/// are interpreted relative to that.
 @MainActor
 final class ClamshellMonitor {
     var onStateChange: ((Bool) -> Void)?
@@ -19,7 +11,6 @@ final class ClamshellMonitor {
     nonisolated(unsafe) private var notification: io_object_t = 0
     nonisolated(unsafe) private var rootDomain: io_service_t = 0
 
-    private var openReferenceValue: Bool?
     private(set) var isLidOpen: Bool = true
 
     init() {
@@ -32,9 +23,9 @@ final class ClamshellMonitor {
         if let port = notificationPort { IONotificationPortDestroy(port) }
     }
 
-    /// Current interpreted state (true = open).
+    /// Current state (true = open, false = closed).
     func currentState() -> Bool {
-        interpret(readRaw())
+        !isClamshellClosed()
     }
 
     // MARK: - Setup
@@ -46,11 +37,7 @@ final class ClamshellMonitor {
         )
         guard rootDomain != 0 else { return }
 
-        // Calibrate against the value we see right now. The user just enabled
-        // the feature, so the lid is definitively open at this point.
-        let raw = readRaw()
-        openReferenceValue = raw
-        isLidOpen = true
+        isLidOpen = currentState()
 
         let port = IONotificationPortCreate(kIOMainPortDefault)
         guard let port else { return }
@@ -62,7 +49,7 @@ final class ClamshellMonitor {
             guard let refcon else { return }
             Task { @MainActor in
                 let monitor = Unmanaged<ClamshellMonitor>.fromOpaque(refcon).takeUnretainedValue()
-                let newState = monitor.interpret(monitor.readRaw())
+                let newState = monitor.currentState()
                 if newState != monitor.isLidOpen {
                     monitor.isLidOpen = newState
                     monitor.onStateChange?(newState)
@@ -80,22 +67,15 @@ final class ClamshellMonitor {
         )
     }
 
-    // MARK: - State
-
-    private func interpret(_ raw: Bool) -> Bool {
-        guard let reference = openReferenceValue else { return true }
-        return raw == reference
-    }
-
-    private func readRaw() -> Bool {
-        guard rootDomain != 0 else { return true }
+    private func isClamshellClosed() -> Bool {
+        guard rootDomain != 0 else { return false }
         let prop = IORegistryEntryCreateCFProperty(
             rootDomain,
             "AppleClamshellState" as CFString,
             kCFAllocatorDefault,
             0
         )
-        guard let value = prop?.takeRetainedValue() as? NSNumber else { return true }
+        guard let value = prop?.takeRetainedValue() as? NSNumber else { return false }
         return value.boolValue
     }
 }

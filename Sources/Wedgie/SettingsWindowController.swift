@@ -11,7 +11,7 @@ final class SettingsWindowController: NSWindowController {
 
         let hosting = NSHostingController(rootView: SettingsView(model: model))
         let window = NSWindow(contentViewController: hosting)
-        window.title = L10n.tr("Wedge")
+        window.title = L10n.tr("Wedgie")
         window.styleMask = [.titled, .closable]
         window.isReleasedWhenClosed = false
         window.center()

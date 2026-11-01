@@ -25,11 +25,29 @@ enum BrightnessController {
 
     static var internalDisplayID: CGDirectDisplayID? {
         var count: UInt32 = 0
-        guard CGGetActiveDisplayList(0, nil, &count) == .success, count > 0 else { return nil }
-        var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
-        guard CGGetActiveDisplayList(count, &displays, &count) == .success else { return nil }
-        for id in displays where CGDisplayIsBuiltin(id) != 0 {
-            return id
+        // Check active displays first
+        if CGGetActiveDisplayList(0, nil, &count) == .success, count > 0 {
+            var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
+            if CGGetActiveDisplayList(count, &displays, &count) == .success {
+                for id in displays where CGDisplayIsBuiltin(id) != 0 {
+                    return id
+                }
+            }
+        }
+        // Fallback to online displays in case display is waking or in transitional state
+        count = 0
+        if CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 {
+            var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
+            if CGGetOnlineDisplayList(count, &displays, &count) == .success {
+                for id in displays where CGDisplayIsBuiltin(id) != 0 {
+                    return id
+                }
+            }
+        }
+        // Fallback to main display if builtin
+        let main = CGMainDisplayID()
+        if CGDisplayIsBuiltin(main) != 0 {
+            return main
         }
         return nil
     }

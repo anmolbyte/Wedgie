@@ -2,7 +2,8 @@ import Foundation
 import Security
 
 enum KeychainStore {
-    private static let service = "com.wedge.app.sudo"
+    private static let service = "com.wedgie.app.sudo"
+    private static let legacyService = "com.wedge.app.sudo"
     private static let account = "admin"
 
     static func save(password: String) {
@@ -19,6 +20,18 @@ enum KeychainStore {
     }
 
     static func load() -> String? {
+        if let pwd = load(service: service) {
+            return pwd
+        }
+        if let legacyPwd = load(service: legacyService) {
+            save(password: legacyPwd)
+            delete(service: legacyService)
+            return legacyPwd
+        }
+        return nil
+    }
+
+    private static func load(service: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -33,6 +46,11 @@ enum KeychainStore {
     }
 
     static func delete() {
+        delete(service: service)
+        delete(service: legacyService)
+    }
+
+    private static func delete(service: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,

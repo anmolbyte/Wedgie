@@ -3,14 +3,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 import ImageIO
 
-// Renders the Wedge app icon at 1024×1024 and produces a full iconset + .icns
+// Renders the Wedgie app icon at 1024×1024 and produces a full iconset + .icns
 // using Apple's iconutil.
 
 let outputDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     .appendingPathComponent("build")
-let iconsetDir = outputDir.appendingPathComponent("Wedge.iconset")
-let icnsPath = outputDir.appendingPathComponent("Wedge.icns")
-let masterPNG = outputDir.appendingPathComponent("Wedge-1024.png")
+let iconsetDir = outputDir.appendingPathComponent("Wedgie.iconset")
+let icnsPath = outputDir.appendingPathComponent("Wedgie.icns")
+let masterPNG = outputDir.appendingPathComponent("Wedgie-1024.png")
 
 try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
 try? FileManager.default.removeItem(at: iconsetDir)
@@ -196,7 +196,7 @@ func render() throws {
     renderer.proposedSize = ProposedViewSize(width: 1024, height: 1024)
 
     guard let cgImage = renderer.cgImage else {
-        throw NSError(domain: "WedgeIcon", code: 1, userInfo: [NSLocalizedDescriptionKey: "renderer.cgImage was nil"])
+        throw NSError(domain: "WedgieIcon", code: 1, userInfo: [NSLocalizedDescriptionKey: "renderer.cgImage was nil"])
     }
 
     // Save master 1024 PNG.
@@ -229,7 +229,7 @@ func render() throws {
     proc.waitUntilExit()
     guard proc.terminationStatus == 0 else {
         throw NSError(
-            domain: "WedgeIcon",
+            domain: "WedgieIcon",
             code: Int(proc.terminationStatus),
             userInfo: [NSLocalizedDescriptionKey: "iconutil failed"]
         )
@@ -250,21 +250,21 @@ private func savePNG(_ source: CGImage, to url: URL, width: Int, height: Int) th
         space: colorSpace,
         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
     ) else {
-        throw NSError(domain: "WedgeIcon", code: 2, userInfo: [NSLocalizedDescriptionKey: "CGContext init failed"])
+        throw NSError(domain: "WedgieIcon", code: 2, userInfo: [NSLocalizedDescriptionKey: "CGContext init failed"])
     }
     ctx.interpolationQuality = .high
     ctx.draw(source, in: CGRect(x: 0, y: 0, width: width, height: height))
 
     guard let scaled = ctx.makeImage() else {
-        throw NSError(domain: "WedgeIcon", code: 3, userInfo: [NSLocalizedDescriptionKey: "makeImage failed"])
+        throw NSError(domain: "WedgieIcon", code: 3, userInfo: [NSLocalizedDescriptionKey: "makeImage failed"])
     }
 
     guard let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else {
-        throw NSError(domain: "WedgeIcon", code: 4, userInfo: [NSLocalizedDescriptionKey: "CGImageDestination init failed"])
+        throw NSError(domain: "WedgieIcon", code: 4, userInfo: [NSLocalizedDescriptionKey: "CGImageDestination init failed"])
     }
     CGImageDestinationAddImage(dest, scaled, nil)
     guard CGImageDestinationFinalize(dest) else {
-        throw NSError(domain: "WedgeIcon", code: 5, userInfo: [NSLocalizedDescriptionKey: "destination finalize failed"])
+        throw NSError(domain: "WedgieIcon", code: 5, userInfo: [NSLocalizedDescriptionKey: "destination finalize failed"])
     }
 }
 

@@ -30,6 +30,6 @@ jobs:
 
       - name: Sanity check bundle
         run: |
-          test -f build/Wedge.app/Contents/MacOS/Wedge
-          test -f build/Wedge.app/Contents/Info.plist
-          codesign --verify --verbose=2 build/Wedge.app || true
+          test -f build/Wedgie.app/Contents/MacOS/Wedgie
+          test -f build/Wedgie.app/Contents/Info.plist
+          codesign --verify --verbose=2 build/Wedgie.app || true
